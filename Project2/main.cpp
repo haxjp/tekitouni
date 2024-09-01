@@ -3,14 +3,17 @@
 #include "player.h"
 
 void init(HINSTANCE HI);
-int b;
+uintptr_t* tramp;
+
 uintptr_t* clientinstance;
-using tramp = __int64(__fastcall*)(void*,void*);
-static tramp a;
-void hook(void* thisptr,void* target) {
-    for (int n = 0; n < b; n++)
-        a(thisptr, target);
-    return;
+
+__int64 gametick_hook(__int64 a1, __int64 a2, __int64 a3, uintptr_t* a4, char a5) {
+    auto Tramp = CreateFastCall<__int64, __int64 , __int64 , __int64 , uintptr_t* , char >(tramp);
+    if (keystatecalculation(0x4B) & 1) {
+        auto attack = CreateFastCall<__int64, void*, void*>((uintptr_t*)((uintptr_t)BaseAddress + 0x28EF500));
+        attack(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), callVirtual<Player*>(clientinstance, 0x1D));
+    }
+    return Tramp(a1, a2, a3,a4,a5);
 }
 BOOL APIENTRY DllMain(
     HINSTANCE hInstance,
@@ -47,22 +50,23 @@ void init(HINSTANCE HI) {
     uintptr_t CI[] = { (uintptr_t)BaseAddress + 0x05AD5088 ,0x0,0x58,0x0,0x0};
     clientinstance = calclatepointer(CI, sizeof CI);
     cout<<"ClientInstance = " << clientinstance << endl;
-    MH_CreateHook(getAddress(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), 0xE), hook, (LPVOID*)&a);
+    MH_CreateHook((LPVOID)((uintptr_t)BaseAddress+ 0x6ABA00), gametick_hook, (LPVOID*)&tramp);
     for (;;) {
         if (keystatecalculation(VK_HOME) & 1) {
-            MH_EnableHook(getAddress(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), 0xE));
-            cin >> b;
+            MH_EnableHook((LPVOID)((uintptr_t)BaseAddress + 0x6ABA00));
+
         }
         if (keystatecalculation(VK_OEM_5) & 1) {
-            MH_DisableHook(getAddress(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), 0xE));
+            MH_DisableHook((LPVOID)((uintptr_t)BaseAddress + 0x6ABA00));
         }
-        if (keystatecalculation(VK_END) & 1) {//exit
+        if (keystatecalculation(0x4C) & keystatecalculation(VK_CONTROL)) {//exit
             ShowWindow(Handle, SW_HIDE);
             break;
         }
         Sleep(50);
     }
-
+    MH_ALL_HOOKS(MH_DisableHook);
+    MH_ALL_HOOKS(MH_RemoveHook);
     MH_Uninitialize();
     FreeLibraryAndExitThread(HI, 0);
     return;
