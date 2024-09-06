@@ -13,7 +13,7 @@ __int64 gametick_hook(__int64 a1, __int64 a2, __int64 a3, uintptr_t* a4, char a5
     auto Tramp = CreateFastCall<__int64, __int64, __int64, __int64, uintptr_t*, char >(tramp);
     auto test = CreateFastCall<__int64, uintptr_t*, uintptr_t*>(getAddress(callVirtual<Player*>(clientinstance,0x1D)->getgamemode(),0xE));
     if (keystatecalculation(0x4B) & 1) {
-        test(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), (uintptr_t*)0x00000151C406F9A0);
+        test(callVirtual<Player*>(clientinstance, 0x1D)->getgamemode(), (uintptr_t*)callVirtual<Player*>(clientinstance, 0x1D));
     }
     return Tramp(a1, a2, a3, a4, a5);
 }
