@@ -2,7 +2,7 @@
 #include "Pointer.h"
 
 int keystatecalculation(int vkey) {
-	uintptr_t KeyPointer[] = {(uintptr_t)BaseAddress+ 0x05A153A0 };
+	uintptr_t KeyPointer[] = {(uintptr_t)BaseAddress+ 0x05A163A0 };
 	return *((int*)(calclatepointer(KeyPointer, sizeof KeyPointer)) + vkey);
 }
 
